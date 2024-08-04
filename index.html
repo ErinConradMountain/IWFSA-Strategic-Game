@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IWFSA Strategic Expansion Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; }
+        .container { width: 80%; margin: auto; padding: 20px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .map, .dashboard, .scenario, .feedback { border: 1px solid #ccc; padding: 20px; margin: 20px 0; background-color: #f9f9f9; }
+        .country { cursor: pointer; color: blue; text-decoration: underline; }
+        .hidden { display: none; }
+        .feedback { background-color: #e7f3e7; }
+        .progress-bar { width: 100%; background-color: #ccc; }
+        .progress { width: 0; height: 20px; background-color: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IWFSA Strategic Expansion Game</h1>
+        <div class="introduction">
+            <h2>Introduction</h2>
+            <p>Welcome to the IWFSA Strategic Expansion Game. Your objective is to expand the IWF to more countries in Africa by making strategic decisions and overcoming challenges.</p>
+        </div>
+        <div class="map">
+            <h2>Select Countries</h2>
+            <p>Select a country to start planning your expansion:</p>
+            <ul>
+                <li class="country" data-country="Kenya">Kenya</li>
+                <li class="country" data-country="Nigeria">Nigeria</li>
+                <li class="country" data-country="South Africa">South Africa</li>
+                <li class="country" data-country="Ghana">Ghana</li>
+                <li class="country" data-country="Tanzania">Tanzania</li>
+            </ul>
+        </div>
+        <div class="strategic-planning hidden">
+            <h2>Strategic Planning for <span id="selected-country"></span></h2>
+            <form id="strategic-plan-form">
+                <label for="goal">Set a Goal:</label><br>
+                <input type="text" id="goal" name="goal" required><br><br>
+                <label for="stakeholders">Identify Key Stakeholders:</label><br>
+                <input type="text" id="stakeholders" name="stakeholders" required><br><br>
+                <label for="activities">Plan Outreach and Engagement Activities:</label><br>
+                <textarea id="activities" name="activities" required></textarea><br><br>
+                <button type="submit">Submit Plan</button>
+            </form>
+        </div>
+        <div class="resource-allocation hidden">
+            <h2>Resource Allocation</h2>
+            <form id="resource-allocation-form">
+                <label for="funding">Allocate Funding (USD):</label><br>
+                <input type="number" id="funding" name="funding" required><br><br>
+                <label for="staff">Number of Staff:</label><br>
+                <input type="number" id="staff" name="staff" required><br><br>
+                <label for="time">Time (months):</label><br>
+                <input type="number" id="time" name="time" required><br><br>
+                <button type="submit">Allocate Resources</button>
+            </form>
+        </div>
+        <div class="scenario hidden">
+            <h2>Scenario Challenges</h2>
+            <p id="scenario-text">You encounter a challenge. How will you respond?</p>
+            <button class="scenario-option" data-outcome="positive">Option 1: Positive Outcome</button>
+            <button class="scenario-option" data-outcome="negative">Option 2: Negative Outcome</button>
+        </div>
+        <div class="feedback hidden">
+            <h2>Feedback and Adaptation</h2>
+            <p id="feedback-text"></p>
+            <button id="next-scenario">Next Scenario</button>
+        </div>
+        <div class="dashboard hidden">
+            <h2>Progress Dashboard</h2>
+            <p>Track your progress here:</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <p id="progress-text"></p>
+        </div>
+    </div>
+    <script>
+        const countries = document.querySelectorAll('.country');
+        const strategicPlanning = document.querySelector('.strategic-planning');
+        const resourceAllocation = document.querySelector('.resource-allocation');
+        const scenarioSection = document.querySelector('.scenario');
+        const feedbackSection = document.querySelector('.feedback');
+        const dashboard = document.querySelector('.dashboard');
+        const selectedCountrySpan = document.getElementById('selected-country');
+        const strategicPlanForm = document.getElementById('strategic-plan-form');
+        const resourceAllocationForm = document.getElementById('resource-allocation-form');
+        const feedbackText = document.getElementById('feedback-text');
+        const progress = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
+        let selectedCountry = '';
+        let progressValue = 0;
+
+        countries.forEach(country => {
+            country.addEventListener('click', () => {
+                selectedCountry = country.getAttribute('data-country');
+                selectedCountrySpan.textContent = selectedCountry;
+                strategicPlanning.classList.remove('hidden');
+                resourceAllocation.classList.add('hidden');
+                scenarioSection.classList.add('hidden');
+                feedbackSection.classList.add('hidden');
+                dashboard.classList.add('hidden');
+            });
+        });
+
+        strategicPlanForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            strategicPlanning.classList.add('hidden');
+            resourceAllocation.classList.remove('hidden');
+        });
+
+        resourceAllocationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            resourceAllocation.classList.add('hidden');
+            scenarioSection.classList.remove('hidden');
+        });
+
+        document.querySelectorAll('.scenario-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const outcome = option.getAttribute('data-outcome');
+                if (outcome === 'positive') {
+                    feedbackText.textContent = 'Great decision! Your plan is progressing well.';
+                    progressValue += 20;
+                } else {
+                    feedbackText.textContent = 'That decision set back your progress. Re-evaluate your strategy.';
+                    progressValue -= 10;
+                }
+                scenarioSection.classList.add('hidden');
+                feedbackSection.classList.remove('hidden');
+                updateProgress();
+            });
+        });
+
+        document.getElementById('next-scenario').addEventListener('click', () => {
+            feedbackSection.classList.add('hidden');
+            strategicPlanning.classList.remove('hidden');
+        });
+
+        function updateProgress() {
+            if (progressValue < 0) progressValue = 0;
+            if (progressValue > 100) progressValue = 100;
+            progress.style.width = progressValue + '%';
+            progressText.textContent = `Progress: ${progressValue}%`;
+            if (progressValue === 100) {
+                alert('Congratulations! You have successfully expanded IWF to new countries!');
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            selectedCountry = '';
+            progressValue = 0;
+            strategicPlanning.classList.add('hidden');
+            resourceAllocation.classList.add('hidden');
+            scenarioSection.classList.add('hidden');
+            feedbackSection.classList.add('hidden');
+            dashboard.classList.add('hidden');
+            progress.style.width = '0%';
+            progressText.textContent = 'Progress: 0%';
+        }
+    </script>
+</body>
+</html>
